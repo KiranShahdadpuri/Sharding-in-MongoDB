@@ -1,0 +1,10 @@
+1) First of all , always name Config Server Replica Set and Shard Server Replica Set name differently. If you keep the same name then, 
+it won't allow you shard the collection and will give you error.
+2) Whenever there is 48, 100 error first check parameters
+Also if errro 100 there might be exception of permission, if so give following commands: 
+  sudo mkdir -p /data/db
+  sudo chown -R 'username' /data/db
+3) **Error FailedToParse:** mirrored config server connections are not supported; for config server replica sets be sure to use the replica set connection string
+      Solution:In 3.4 version you have to specify replica set name and then sepcify shards in following manner:
+      mongos --configdb rs1/192.168.0.11:26050,192.168.0.11:26051,192.168.0.11:26052 --fork --logappend --logpath log.mongos0 --port 28000
+
