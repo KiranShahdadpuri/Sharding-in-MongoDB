@@ -10,6 +10,8 @@ mongo --host localhost --port 26050
     configsvr: true,
     members: [
       {_id : 0, host : "hostname:port"},
+       {_id : 1, host : "hostname:port1"},
+        {_id : 2, host : "hostname:port2"},
     ]
   }
 )
@@ -18,11 +20,11 @@ mongo --host localhost --port 26050
  
 ##2) SHARD SERVERS##
 mongod --shardsvr --replSet ssrs1 --dbpath a0 --logpath log.a0 --port 27000 --fork --logappend --smallfiles --oplogSize 50(do it for as many shards you want to create)
-mongo --host 192.168.0.11 --port 27200(depends on which rs you want to initialize)
+mongo --host 192.168.0.11 --port 27000(depends on which rs you want to initialize)
 rs.initiate(
 {
-_id:"rs3",
-members:[{_id:0,host:"192.168.0.11:27200"},{_id:1,host:"192.168.0.11:27201"},{_id:2,host:"192.168.0.11:27202"}]
+_id:"ssrs1",
+members:[{_id:0,host:"192.168.0.11:27000"},{_id:1,host:"192.168.0.11:27001"},{_id:2,host:"192.168.0.11:27002"}]
 }
 )
  (**FOLLOW FOR AS MANY REPLICA SET ONE WANTS TO CREATE**)
@@ -30,13 +32,13 @@ NOW RUN rs.status() in mongo --host 192.168.0.11 --port <portName>
 
 ##3) CONNECT TO MONGOS :##
  
-mongos --configdb cfgrs1/192.168.0.11:26050,192.168.0.11:26051,192.168.0.11:26052 --fork --logappend --logpath log.mongos0 --port 28000
+mongos --configdb rs1/192.168.0.11:26050,192.168.0.11:26051,192.168.0.11:26052 --fork --logappend --logpath log.mongos0 --port 28000
 
 IN NEW TERMINAL ,to connect to mongos write as follows
 mongo --host 192.168.0.11 --port 28000(port number on which mongos (i.e where you gave the --configdb command) is listening)
-mongos> sh.addShard("rs1/192.168.0.11:27000")
+mongos> sh.addShard("ssrs1/192.168.0.11:27000")
  
-{ "shardAdded" : "rs1", "ok" : 1 }
+{ "shardAdded" : "ssrs1", "ok" : 1 }
 
 
 
